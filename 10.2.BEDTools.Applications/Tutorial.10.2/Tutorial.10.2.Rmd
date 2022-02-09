@@ -1,0 +1,107 @@
+---
+title: "10.2 BEDTools Applications - Tutorial"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE, warning = TRUE)
+```
+
+---
+
+*Note:* You must have completed the first part of this tutorial using BEDTools in the command line. You will need to have created the file `HNF4A_regulated_genes.txt` to continue. 
+
+No packages are loaded, you must load them yourself in order to use them. 
+
+There is no otter grader to check your code in this tutorial. Instead use the results of the analysis to answer the quiz questions to verify your answers. When the output of a code block directly answers a quiz question, the quiz question will be written above it. If the quiz question requires interpretation of a plot, it will be written below the code block that generates the plot.
+
+---
+
+## 10.2.4: Analysis of Results in R
+
+---
+
+Read in the file `HNF4A_regulated_genes.txt` and save it to a variable named "HNF4A_regulated_genes". Remember to set `stringsAsFactors` to `FALSE`. Add the following column names to the data frame: "promoter.ID", "gene.ID", "gene.type", "distance.to.promoter".
+
+```{r}
+# Write and execute your code here
+
+```
+
+Reduce `HNF4A_regulated_genes` to *CODING* genes that have an absolute value of "distance.to.promoter" less than 300. Save this new data frame to a variable called "HNF4A_regulated_close_coding_genes". 
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 11:
+How many of the rows in `HNFA_regulated_genes` contain coding genes that are within 300 base pairs of the closest promoter?
+
+```{r}
+# Write and execute your code here
+
+```
+
+---
+
+Let's examine the tissue expression levels of these genes using the GTEx data (https://gtexportal.org/).
+
+```{r}
+GTEx_data <- read.table("/home/jovyan/Week.10/10.2.BEDTools.Applications/Tutorial.10.2/GTEx_expression_data.txt", stringsAsFactors = FALSE, header=TRUE, sep="\t")
+```
+
+#### Quiz question 12:
+In which tissue type is HNF4A most highly expressed? (Ensembl gene ID: ENSG00000101076)
+
+```{r}
+# Write and execute your code here
+
+```
+
+Create a data frame called "GTEx_HNF4A_close_coding_genes" that contains expression data only for the genes that are in the data frame `HNF4A_regulated_close_coding_genes`.
+
+```{r}
+# Write and execute your code here
+
+```
+
+Create a heatmap of the gene expression data in `GTEx_HNF4A_close_coding_genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 13:
+Based on the heatmap of tissue expression, in which tissue are most genes most highly expressed?
+
+---
+
+Create a data frame called "GTEx_HNF4A_genes" that contains expression data for all genes in the data frame `HNF4A_regulated_genes`. This should include the expression data for non-coding and pseudogenes, and should not filter for closeness of the promoter.
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 14:
+HNF4A is expressed the least in the putamen ("Brain.Putamen") (0.00413535). Perform a t-test to determine if the set of genes likely regulated by HNF4A in `GTEx_HNF4A_genes` have a different expression distribution in liver vs putamen tissues. Are the distributions significantly different (p-value < 0.05)?
+
+```{r}
+# Write and execute your code here
+
+```
+
+Plot the expression levels of the genes likely regulated by HNF4A in liver vs. putamen tissues in `GTEx_HNF4A_genes`. Log scale the axes and add a diagonal line to the plot for better visualization.
+Make another plot comparing expression of these genes in liver vs transverse colon. Transverse colon has the second highest expression of HNF4A after liver ("Colon.Transverse") (32.9931).
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 15:
+Examine the plots of liver tissue vs brain putamen expression values for HNF4A regulated genes and liver tissue vs transverse colon expression values for HNF4A regulated genes. Which of the two tissues has more of these genes expressed at a higher level than they are expressed in liver tissue?
+
+---
