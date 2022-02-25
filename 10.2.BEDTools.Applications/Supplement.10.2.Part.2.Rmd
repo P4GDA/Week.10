@@ -1,0 +1,154 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE, warning = TRUE)
+```
+
+---
+
+## 10.2.4: Analysis of Results in R
+
+---
+
+### Closest Genes to Testis Only Promoters
+
+In module 10.1, accessible promoters in liver, kidney, skin, spleen, and testis tissue samples were identified using `bedtools intersect`. Promoters that are accessible only in the testis sample and not in the other 4 samples were identified using `bedtools subtract`. Finally, with `bedtools closest` the closest transcript(s) to each promoter was found and results were simplified. This resulted in a file (`testis_only_gene_info.txt`) containing each accessible testis-only promoter along with the Ensembl gene ID of closest gene, the type of gene (coding, non-coding, or pseudo), and the distance between the promoter and the gene.
+
+First, read the data into R and add appropriate column names:
+
+```{r}
+testis_only_genes <- read.table("~/Markdown_Files/Week10/testis_only_gene_info.txt", stringsAsFactors = FALSE, header=FALSE, sep="\t")
+colnames(testis_only_genes) <- c("promoter.ID", "gene.ID", "gene.type", "distance.to.promoter")
+testis_only_genes
+```
+Many of these genes are not very close to the promoter:
+
+```{r}
+library(ggplot2)
+ggplot(testis_only_genes, aes(abs(distance.to.promoter))) + geom_histogram(binwidth=500)
+```
+
+Around 1/4 of the genes are within 342 base pairs of the promoter:
+
+```{r}
+summary(abs(testis_only_genes$distance.to.promoter))
+```
+
+Because promoters should be very close to genes, we will reduce the set of testis-only promoters to those that are within 300 bases of the nearest gene, and we will reduce the set to protein coding genes.
+
+```{r}
+testis_only_genes_reduced <- filter(testis_only_genes, abs(distance.to.promoter) < 300, gene.type == "coding")
+testis_only_genes_reduced
+```
+
+---
+
+### Tissue Expression
+
+Genes with accessible promoters are actively transcribed. Therefore, genes with accessible promoters in testis should be expressed in testis, and genes that are accessible in testis and not in the liver, kidney, skin, or spleen should have higher expression in testis than in the other four tissues. 
+
+To see if this is the case, we can use data from GTEx (https://gtexportal.org/). The GTEx data set contains expression data for 56,200 genes across 54 different human tissues. 
+
+```{r}
+GTEx_data <- read.table("~/Markdown_Files/Week10/GTEx_expression_data.txt", stringsAsFactors = FALSE, header=TRUE, sep="\t")
+GTEx_data
+```
+
+Each row in `GTEx_data` is one gene. The first two columns contain the Ensembl gene ID and the gene name. The 3rd to 56th column contain the median transcripts per million (TPM) for each of the 54 tissue types. The median TPM value is calculated from multiple samples of the same tissue type. For example, TPM values from 406 testis samples are used to calculate the median expression for each gene in this data frame. 
+
+To get the expression data for the relevant genes and tissues, we can filter the GTEx data for the set of genes in that are accessible in testis.
+
+The `%in%` operator returns a logical vector, if an element in `vector_1` is in `vector_2` it will return `TRUE`, otherwise it will return `FALSE`.
+
+    vector_1 %in% vector_2
+    
+For example:
+
+```{r}
+c("A", "B", "C", "D", "E", "F") %in% c("A", "D")
+```
+
+The `%in%` operator can be used with the `filter()` function. To get only the GTEx_data rows that have a `gene.ID` that is in `testis_only_genes_reduced`, we can run:
+
+```{r}
+testis_only_genes_expr <- filter(GTEx_data, gene.ID %in% testis_only_genes_reduced$gene.ID)
+testis_only_genes_expr
+```
+
+Now, we can use the `select()` function to reduce the data frame columns on only those with gene information (`gene.ID`, `gene.name`) and those with expression for relevant tissues ("Liver", "Kidney", "Skin", "Spleen", "Testis"). 
+
+```{r}
+testis_only_genes_expr <- select(testis_only_genes_expr, contains(c("gene", "Liver", "Kidney", "Skin", "Spleen", "Testis")))
+testis_only_genes_expr
+```
+
+For kidney and skin tissues, there are two sub-tissues. Kidney is split into cortex & medulla, and skin is split into sun exposed vs. not sun exposed.
+
+Now we have the expression values for the set of coding genes with a nearby accessible promoter in the testis DNase-Seq experiment, but NOT in the liver, kidney, skin, and spleen experiments. We would expect these genes to be expressed much more highly in the testis than in the other tissues. To view the expression across all the tissues, we can create a heat map with the `pheatmap` package.
+
+The data must be reduced to only the tissue columns (columns 3 to 9). To make the heatmap easier to interpret, the `scale` arugment is set to "row" which normalizes the differences in expression for each gene. This makes it easier to see which tissue has the highest expression for each gene. The `show_rownames` argument is set to FALSE as the `rownames` will be so small they will be illegible, and therefore take up unnecessary space in the plot.
+
+```{r}
+library(pheatmap)
+pheatmap(testis_only_genes_expr[,3:9], scale="row", show_rownames = FALSE)
+```
+
+Each row in the heat map is a gene and each column is a tissue (tissues are labeled). The deeper red colour indicates high expression, while the blue colour indicates low expression. From the heat map it is evident that at least half of the genes are expressed most highly in the testis.
+
+We can also check which tissue has the highest mean expression across this gene set using the `colMeans()` function on the tissue columns:
+
+```{r}
+sort(colMeans(testis_only_genes_expr[, 3:9]), decreasing = TRUE)
+```
+
+Interestingly, the liver, and not the testis, has the highest mean expression of these genes. Let's plot the expression values of these genes in testis vs. liver. Note that the function `geom_abline()` adds a diagonal line across the plot, which can help us compare the two axes. Points above the line are genes more highly expressed in the liver, and points  below the line are more highly expressed in testis. 
+
+```{r}
+ggplot(testis_only_genes_expr, aes(Testis, Liver)) + geom_point() + geom_abline() + labs(x="Testis Expression", y="Liver Expression")
+```
+
+We can see from the plot that there is one gene that is extremely highly expressed in the liver. This outlier makes it difficult to see the points in the lower left hand side of the plot. To make it easier to view these points, we can log scale both axes by applying the `log()` function directly to the x and y axes in the `aes()` function:
+
+```{r}
+ggplot(testis_only_genes_expr, aes(log(Testis), log(Liver))) + geom_point() + geom_abline() + labs(x="Testis Expression", y="Liver Expression")
+```
+
+Now it is easy to see that most of these points are below the line, and thus the majority of these genes are more highly expressed in the testis than in the liver, as we would expect. 
+
+The mean value can be very skewed by outliers, however, this is not true of the median value. 
+
+```{r}
+"Median Liver Expression:"
+median(testis_only_genes_expr$Liver)
+"Median Testis Expression:"
+median(testis_only_genes_expr$Testis)
+```
+
+The median expression of these genes is ~7x higher in testis than in liver, even though the mean liver expression was much higher than the mean testis expression.
+
+Looking back at the heat map, excluding the testis, the spleen has the most genes that are more highly expressed than in other tissues. Let's compare the expression of the gene set in testis vs. spleen: 
+
+```{r}
+ggplot(testis_only_genes_expr, aes(Testis, Spleen)) + geom_point() + geom_abline() + labs(x="Testis Expression", y="Spleen Expression")
+```
+
+Again, as it is difficult to see the bottom left corner, let's log both axes:
+
+```{r}
+ggplot(testis_only_genes_expr, aes(log(Testis), log(Spleen))) + geom_point() + geom_abline() + labs(x="Testis Expression (log)", y="Spleen Expression (log)")
+```
+
+The majority of genes are more highly expressed in testis, however, compared to the liver, more genes are above the diagonal line.
+
+To determine if the testis has significantly higher expression of these genes than the spleen, we can perform a t-test. This t-test will be paired because the measurements in `testis_only_genes_expr$Testis` and `testis_only_genes_expr$Spleen` correspond with one another: element 1 in both vectors is for the same gene, element 2 in both vectors is for the same gene, etc.
+
+```{r}
+t.test(testis_only_genes_expr$Testis, testis_only_genes_expr$Spleen, paired=TRUE)
+```
+
+The p-value of the t-test is 0.0006369 which is well below 0.05, meaning that the testis has significantly higher expression of these genes than the spleen.
+
+---
