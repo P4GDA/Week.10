@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "10.2 BEDTools Applications - PART 2"
 output: html_document
 ---
 
@@ -40,6 +40,7 @@ summary(abs(testis_only_genes$distance.to.promoter))
 Because promoters should be very close to genes, we will reduce the set of testis-only promoters to those that are within 300 bases of the nearest gene, and we will reduce the set to protein coding genes.
 
 ```{r}
+library(dplyr)
 testis_only_genes_reduced <- filter(testis_only_genes, abs(distance.to.promoter) < 300, gene.type == "coding")
 testis_only_genes_reduced
 ```
@@ -150,5 +151,17 @@ t.test(testis_only_genes_expr$Testis, testis_only_genes_expr$Spleen, paired=TRUE
 ```
 
 The p-value of the t-test is 0.0006369 which is well below 0.05, meaning that the testis has significantly higher expression of these genes than the spleen.
+
+---
+
+### In Conclusion
+
+Going into this analysis, you may have expected a different outcome. Theoretically, all the genes associated with promoters that accessible only in the testis sample should be expressed in the testis and not in the other 4 tissues, however, the results of this analysis did not find that. In this analysis (and in all bioinformatic analyses) there are steps that introduce uncertainty into the final outcome. In this analysis, there were two major aspects that affected the outcome: 
+- We used one sample from each tissue type. Because there is variance between individual samples, it is better to use multiple replicates to find DHSs that are common across the samples. By using only one sample for each tissue, it is more likely to find incosistencies with the gene expression data.
+- The promoter sequences we used were candidate promoters and we do not known exactly which genes each promoter regulates. This was approximated by finding the closest gene to each promoter, but a small percentage of these genes are probably not regulated by the promoter we identified using BEDTools closest.
+
+Overall, however, the statistical tests showed that these genes are significantly more expressed in testis than in the other 4 tissues, indicating that despite these issues, the data still supports most of the promoters being more active in testis than the other 4 tissues.
+
+In this module, we combined command line tools with R programming to explore DNase-seq data. By importing the results of our BEDTools commands into R, we were able to create visualizations and perform specific analyses of of the data to derive meaning from the data. These are highly applicable skills and many types of data can be examined using similar steps and stastitical analyses, including the data that will be explored in the tutorial and assignment. 
 
 ---
