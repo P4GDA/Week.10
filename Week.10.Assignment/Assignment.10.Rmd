@@ -1,0 +1,149 @@
+---
+title: "Assignment 10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE, warning = TRUE)
+```
+
+---
+
+*Note:* You must have completed the first part of this assignment using BEDTools in the command line. You will need to have created the file `CID_variants_and_genes.txt` to continue. 
+
+No packages are loaded, you must load them yourself in order to use them. 
+
+When the output of a code block directly answers a quiz question, the quiz question will be written above it. If the quiz question requires interpretation of a plot, it will be written below the code block that generates the plot.
+
+---
+
+## PART 2: Analysis of Genes Containing CID Variants (11 marks)  
+
+Read in the file `CID_variants_in_genes_information.txt` and save it to a data frame called "CID.variant.genes" and add the following column names: "variant.ID", "variant.score", "gene.ID", "gene.type".
+
+```{r}
+# Write and execute your code here
+
+```
+
+Create a bar plot to display the count of coding, non-coding, and pseudogenes that are overlapped by CID variants.
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz Question 8 (1 mark): 
+Based on the bar plot displaying the count of coding, non-coding, and pseudogenes that are overlapped by CID variant, which of the three gene types is the least common in the data frame?
+
+---
+
+Let's examine the tissue expression levels of these genes using the GTEx data (https://gtexportal.org/).
+
+```{r}
+GTEx_data <- read.table("~/Markdown_Files/Week10/GTEx_expression_data.txt", stringsAsFactors = FALSE, header=TRUE, sep="\t")
+```
+
+Create a data frame called "GTEx.CID.gene.variants" that contains expression data only for the genes that are in the data frame `CID.gene.variants`. 
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 9 (1 mark):
+Which tissue has the highest mean expression value for the genes that contain CID variants? 
+
+```{r}
+# Write and execute your code here
+
+```
+
+---
+
+Create a heatmap of the gene expression data in `GTEx.CID.variant.genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 10 (2 marks):
+Based on the heatmap of the CID variant genes expression across tissue types, which tissue has the largest number of genes that are expressed most highly in that tissue?
+
+---
+
+Filter the data frame `CID.variant.genes` to create a new data frame called "CID.high.variant.score.coding.genes" that contains only the variants in `CID.variant.genes` with a *variant score greater than the median variant score*, and that are in *CODING genes*.
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 11 (2 marks):
+How many of the CID variants with a score above the median variant score overlap a coding gene? 
+
+```{r}
+# Write and execute your code here
+
+```
+
+Create a data frame called "GTEx.CID.high.variant.score.coding.genes" that contains expression data only for the genes that are in the data frame `CID.high.variant.score.coding.genes`. 
+
+```{r}
+# Write and execute your code here
+
+```
+
+Create a heatmap of the gene expression data in `GTEx.CID.high.variant.score.coding.genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 12 (2 marks):
+Based on the heatmap of tissue expression, now that the data set is reduced to variants with high scores in coding genes, which tissue has the largest number of genes that are expressed most highly in that tissue?
+
+---
+
+These variants are associated with Chronic Inflammatory Diseases (CIDs). The file "inflammatory_response_genes.txt" contains a list of gene names for the 752 human genes that are known to be involved in the inflammatory response. (Source: http://amigo.geneontology.org/)
+
+Below the file is read in and the gene names are stored in a character vector called `inflammatory_response_genes`.
+
+```{r}
+inflammatory_response_genes <- read.table("~/Markdown_Files/Week10/Assignment.10/inflammatory_response_genes.txt", stringsAsFactors = FALSE)[, 1]
+
+# View the first 10 gene names
+inflammatory_response_genes[1:10]
+```
+
+Filter the `GTEx.CID.high.variant.score.coding.genes` data frame for genes that have a gene name in `inflammatory_response_genes` to create a new data frame called "GTEx.CID.inflammatory.response.genes". This data frame will contain genes that:
+- are coding genes
+- have high scoring variants
+- are known to be involved in the inflammatory response
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 13 (1 mark):
+What percentage of the *coding genes with high scoring variants* are *inflammatory response genes*? 
+
+```{r}
+# Write and execute your code here
+
+```
+
+#### Quiz question 14 (2 marks):
+In questions 10 & 12 you should have identified two different tissues with the largest number of genes that are expressed most highly. We will refer to these two tissues as tissue A (tissue from question 10) & tissue B (tissue from question 12).
+
+Use a t-test to determine if the expression patterns of the inflammatory response coding genes with high scoring variants are significantly different in these two tissues. Is there a significant difference?
+
+```{r}
+# Write and execute your code here
+
+```
+
+---
