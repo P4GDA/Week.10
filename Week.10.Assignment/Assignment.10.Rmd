@@ -41,7 +41,7 @@ Based on the bar plot displaying the count of coding, non-coding, and pseudogene
 Let's examine the tissue expression levels of these genes using the GTEx data (https://gtexportal.org/).
 
 ```{r}
-GTEx_data <- read.table("~/Markdown_Files/Week10/GTEx_expression_data.txt", stringsAsFactors = FALSE, header=TRUE, sep="\t")
+GTEx_data <- read.table("/home/jovyan/Week.10/Assignment.10/GTEx_expression_data.txt", stringsAsFactors = FALSE, header=TRUE, sep="\t")
 ```
 
 Create a data frame called "GTEx.CID.gene.variants" that contains expression data only for the genes that are in the data frame `CID.gene.variants`. 
@@ -112,7 +112,7 @@ These variants are associated with Chronic Inflammatory Diseases (CIDs). The fil
 Below the file is read in and the gene names are stored in a character vector called `inflammatory_response_genes`.
 
 ```{r}
-inflammatory_response_genes <- read.table("~/Markdown_Files/Week10/Assignment.10/inflammatory_response_genes.txt", stringsAsFactors = FALSE)[, 1]
+inflammatory_response_genes <- read.table("/home/jovyan/Week.10/Assignment.10/inflammatory_response_genes.txt", stringsAsFactors = FALSE)[, 1]
 
 # View the first 10 gene names
 inflammatory_response_genes[1:10]
