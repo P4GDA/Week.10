@@ -61,7 +61,7 @@ Which tissue has the highest mean expression value for the genes that contain CI
 
 ---
 
-Create a heatmap of the gene expression data in `GTEx.CID.variant.genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
+Create a heat map of the gene expression data in `GTEx.CID.variant.genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
 
 ```{r}
 # Write and execute your code here
@@ -69,7 +69,7 @@ Create a heatmap of the gene expression data in `GTEx.CID.variant.genes` with th
 ```
 
 #### Quiz question 10 (2 marks):
-Based on the heatmap of the CID variant genes expression across tissue types, which tissue has the largest number of genes that are expressed most highly in that tissue?
+Based on the heat map of the CID variant genes expression across tissue types, which tissue has the largest number of genes that are expressed most highly in that tissue?
 
 ---
 
@@ -95,7 +95,7 @@ Create a data frame called "GTEx.CID.high.variant.score.coding.genes" that conta
 
 ```
 
-Create a heatmap of the gene expression data in `GTEx.CID.high.variant.score.coding.genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
+Create a heat map of the gene expression data in `GTEx.CID.high.variant.score.coding.genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
 
 ```{r}
 # Write and execute your code here
@@ -103,7 +103,7 @@ Create a heatmap of the gene expression data in `GTEx.CID.high.variant.score.cod
 ```
 
 #### Quiz question 12 (2 marks):
-Based on the heatmap of tissue expression, now that the data set is reduced to variants with high scores in coding genes, which tissue has the largest number of genes that are expressed most highly in that tissue?
+Based on the heat map of tissue expression, now that the data set is reduced to variants with high scores in coding genes, which tissue has the largest number of genes that are expressed most highly in that tissue?
 
 ---
 

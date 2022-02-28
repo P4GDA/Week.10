@@ -13,11 +13,11 @@ knitr::opts_chunk$set(echo = TRUE, error = TRUE, warning = TRUE)
 
 No packages are loaded, you must load them yourself in order to use them. 
 
-There is no otter grader to check your code in this tutorial. Instead use the results of the analysis to answer the quiz questions to verify your answers. When the output of a code block directly answers a quiz question, the quiz question will be written above it. If the quiz question requires interpretation of a plot, it will be written below the code block that generates the plot.
+There is no Otter Grader to check your code in this tutorial. Instead, use the results of the analysis to answer the quiz questions to verify your answers. When the output of a code block directly answers a quiz question, the quiz question will be written above it. If the quiz question requires interpretation of a plot, it will be written below the code block that generates the plot.
 
 ---
 
-## 10.2.4: Analysis of Results in R
+## 10.2.4 Analysis of Results in R
 
 ---
 
@@ -66,7 +66,7 @@ Create a data frame called "GTEx_HNF4A_close_coding_genes" that contains express
 
 ```
 
-Create a heatmap of the gene expression data in `GTEx_HNF4A_close_coding_genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
+Create a heat map of the gene expression data in `GTEx_HNF4A_close_coding_genes` with the `pheatmap()` function. To make the data easier to visualize, use the optional `pheatmap()` argument `scale` and set the value to "row". This will scale the values for each gene (row) so that you can see the relative expression of individual genes across the tissues.
 
 ```{r}
 # Write and execute your code here
@@ -74,7 +74,7 @@ Create a heatmap of the gene expression data in `GTEx_HNF4A_close_coding_genes` 
 ```
 
 #### Quiz question 13:
-Based on the heatmap of tissue expression, in which tissue are most genes most highly expressed?
+Based on the heat map of tissue expression, in which tissue are most genes most highly expressed?
 
 ---
 

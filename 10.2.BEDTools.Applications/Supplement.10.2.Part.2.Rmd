@@ -7,9 +7,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, error = TRUE, warning = TRUE)
 ```
 
+*Note:* You must have completed the first part of this supplement using BEDTools in the command line. You will need to have created the file `testis_only_gene_info.txt` to continue. 
+
 ---
 
-## 10.2.4: Analysis of Results in R
+## 10.2.4 Analysis of Results in R
 
 ---
 
@@ -20,7 +22,8 @@ In module 10.1, accessible promoters in liver, kidney, skin, spleen, and testis 
 First, read the data into R and add appropriate column names:
 
 ```{r}
-testis_only_genes <- read.table("~/Markdown_Files/Week10/testis_only_gene_info.txt", stringsAsFactors = FALSE, header=FALSE, sep="\t")
+testis_only_genes <- read.table("/home/jovyan/Week.10/10.2.BEDTools.Applications/testis_only_gene_info.txt", 
+                                stringsAsFactors = FALSE, header = FALSE, sep = "\t")
 colnames(testis_only_genes) <- c("promoter.ID", "gene.ID", "gene.type", "distance.to.promoter")
 testis_only_genes
 ```
@@ -28,7 +31,8 @@ Many of these genes are not very close to the promoter:
 
 ```{r}
 library(ggplot2)
-ggplot(testis_only_genes, aes(abs(distance.to.promoter))) + geom_histogram(binwidth=500)
+ggplot(testis_only_genes, aes(abs(distance.to.promoter))) + 
+  geom_histogram(binwidth = 500)
 ```
 
 Around 1/4 of the genes are within 342 base pairs of the promoter:
@@ -54,7 +58,8 @@ Genes with accessible promoters are actively transcribed. Therefore, genes with 
 To see if this is the case, we can use data from GTEx (https://gtexportal.org/). The GTEx data set contains expression data for 56,200 genes across 54 different human tissues. 
 
 ```{r}
-GTEx_data <- read.table("~/Markdown_Files/Week10/GTEx_expression_data.txt", stringsAsFactors = FALSE, header=TRUE, sep="\t")
+GTEx_data <- read.table("~/jovyan/Week.10/10.2.BEDTools.Applications/GTEx_expression_data.txt", 
+                        stringsAsFactors = FALSE, header = TRUE, sep = "\t")
 GTEx_data
 ```
 
@@ -62,7 +67,7 @@ Each row in `GTEx_data` is one gene. The first two columns contain the Ensembl g
 
 To get the expression data for the relevant genes and tissues, we can filter the GTEx data for the set of genes in that are accessible in testis.
 
-The `%in%` operator returns a logical vector, if an element in `vector_1` is in `vector_2` it will return `TRUE`, otherwise it will return `FALSE`.
+The `%in%` operator returns a logical vector. If an element in `vector_1` is in `vector_2` it will return `TRUE`, otherwise it will return `FALSE`:
 
     vector_1 %in% vector_2
     
@@ -82,7 +87,9 @@ testis_only_genes_expr
 Now, we can use the `select()` function to reduce the data frame columns on only those with gene information (`gene.ID`, `gene.name`) and those with expression for relevant tissues ("Liver", "Kidney", "Skin", "Spleen", "Testis"). 
 
 ```{r}
-testis_only_genes_expr <- select(testis_only_genes_expr, contains(c("gene", "Liver", "Kidney", "Skin", "Spleen", "Testis")))
+testis_only_genes_expr <- select(testis_only_genes_expr, 
+                                 contains(c("gene", "Liver", "Kidney", 
+                                            "Skin", "Spleen", "Testis")))
 testis_only_genes_expr
 ```
 
@@ -90,11 +97,11 @@ For kidney and skin tissues, there are two sub-tissues. Kidney is split into cor
 
 Now we have the expression values for the set of coding genes with a nearby accessible promoter in the testis DNase-Seq experiment, but NOT in the liver, kidney, skin, and spleen experiments. We would expect these genes to be expressed much more highly in the testis than in the other tissues. To view the expression across all the tissues, we can create a heat map with the `pheatmap` package.
 
-The data must be reduced to only the tissue columns (columns 3 to 9). To make the heatmap easier to interpret, the `scale` arugment is set to "row" which normalizes the differences in expression for each gene. This makes it easier to see which tissue has the highest expression for each gene. The `show_rownames` argument is set to FALSE as the `rownames` will be so small they will be illegible, and therefore take up unnecessary space in the plot.
+The data must be reduced to only the tissue columns (columns 3 to 9). To make the heat map easier to interpret, the `scale` argument is set to "row" which normalizes the differences in expression for each gene. This makes it easier to see which tissue has the highest expression for each gene. The `show_rownames` argument is set to FALSE as the `rownames` will be so small they will be illegible, and therefore take up unnecessary space in the plot.
 
 ```{r}
 library(pheatmap)
-pheatmap(testis_only_genes_expr[,3:9], scale="row", show_rownames = FALSE)
+pheatmap(testis_only_genes_expr[,3:9], scale = "row", show_rownames = FALSE)
 ```
 
 Each row in the heat map is a gene and each column is a tissue (tissues are labeled). The deeper red colour indicates high expression, while the blue colour indicates low expression. From the heat map it is evident that at least half of the genes are expressed most highly in the testis.
@@ -108,13 +115,19 @@ sort(colMeans(testis_only_genes_expr[, 3:9]), decreasing = TRUE)
 Interestingly, the liver, and not the testis, has the highest mean expression of these genes. Let's plot the expression values of these genes in testis vs. liver. Note that the function `geom_abline()` adds a diagonal line across the plot, which can help us compare the two axes. Points above the line are genes more highly expressed in the liver, and points  below the line are more highly expressed in testis. 
 
 ```{r}
-ggplot(testis_only_genes_expr, aes(Testis, Liver)) + geom_point() + geom_abline() + labs(x="Testis Expression", y="Liver Expression")
+ggplot(testis_only_genes_expr, aes(Testis, Liver)) + 
+  geom_point() + 
+  geom_abline() + 
+  labs(x = "Testis Expression", y = "Liver Expression")
 ```
 
 We can see from the plot that there is one gene that is extremely highly expressed in the liver. This outlier makes it difficult to see the points in the lower left hand side of the plot. To make it easier to view these points, we can log scale both axes by applying the `log()` function directly to the x and y axes in the `aes()` function:
 
 ```{r}
-ggplot(testis_only_genes_expr, aes(log(Testis), log(Liver))) + geom_point() + geom_abline() + labs(x="Testis Expression", y="Liver Expression")
+ggplot(testis_only_genes_expr, aes(log(Testis), log(Liver))) + 
+  geom_point() + 
+  geom_abline() + 
+  labs(x = "Testis Expression", y = "Liver Expression")
 ```
 
 Now it is easy to see that most of these points are below the line, and thus the majority of these genes are more highly expressed in the testis than in the liver, as we would expect. 
@@ -133,13 +146,19 @@ The median expression of these genes is ~7x higher in testis than in liver, even
 Looking back at the heat map, excluding the testis, the spleen has the most genes that are more highly expressed than in other tissues. Let's compare the expression of the gene set in testis vs. spleen: 
 
 ```{r}
-ggplot(testis_only_genes_expr, aes(Testis, Spleen)) + geom_point() + geom_abline() + labs(x="Testis Expression", y="Spleen Expression")
+ggplot(testis_only_genes_expr, aes(Testis, Spleen)) + 
+  geom_point() + 
+  geom_abline() + 
+  labs(x = "Testis Expression", y = "Spleen Expression")
 ```
 
 Again, as it is difficult to see the bottom left corner, let's log both axes:
 
 ```{r}
-ggplot(testis_only_genes_expr, aes(log(Testis), log(Spleen))) + geom_point() + geom_abline() + labs(x="Testis Expression (log)", y="Spleen Expression (log)")
+ggplot(testis_only_genes_expr, aes(log(Testis), log(Spleen))) +
+  geom_point() + 
+  geom_abline() + 
+  labs(x = "Testis Expression (log)", y = "Spleen Expression (log)")
 ```
 
 The majority of genes are more highly expressed in testis, however, compared to the liver, more genes are above the diagonal line.
@@ -157,11 +176,11 @@ The p-value of the t-test is 0.0006369 which is well below 0.05, meaning that th
 ### In Conclusion
 
 Going into this analysis, you may have expected a different outcome. Theoretically, all the genes associated with promoters that accessible only in the testis sample should be expressed in the testis and not in the other 4 tissues, however, the results of this analysis did not find that. In this analysis (and in all bioinformatic analyses) there are steps that introduce uncertainty into the final outcome. In this analysis, there were two major aspects that affected the outcome: 
-- We used one sample from each tissue type. Because there is variance between individual samples, it is better to use multiple replicates to find DHSs that are common across the samples. By using only one sample for each tissue, it is more likely to find incosistencies with the gene expression data.
+- We used one sample from each tissue type. Because there is variance between individual samples, it is better to use multiple replicates to find DHSs that are common across the samples. By using only one sample for each tissue, it is more likely to find inconsistencies with the gene expression data.
 - The promoter sequences we used were candidate promoters and we do not known exactly which genes each promoter regulates. This was approximated by finding the closest gene to each promoter, but a small percentage of these genes are probably not regulated by the promoter we identified using BEDTools closest.
 
 Overall, however, the statistical tests showed that these genes are significantly more expressed in testis than in the other 4 tissues, indicating that despite these issues, the data still supports most of the promoters being more active in testis than the other 4 tissues.
 
-In this module, we combined command line tools with R programming to explore DNase-seq data. By importing the results of our BEDTools commands into R, we were able to create visualizations and perform specific analyses of of the data to derive meaning from the data. These are highly applicable skills and many types of data can be examined using similar steps and stastitical analyses, including the data that will be explored in the tutorial and assignment. 
+In this module, we combined command line tools with R programming to explore DNase-seq data. By importing the results of our BEDTools commands into R, we were able to create visualizations and perform specific analyses of of the data to derive meaning from the data. These are highly applicable skills and many types of data can be examined using similar steps and stastistical analyses, including the data that will be explored in the tutorial and assignment. 
 
 ---
